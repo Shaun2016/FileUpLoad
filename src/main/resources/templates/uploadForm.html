@@ -1,0 +1,107 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<style>
+	.myImg {
+		width: 50px;
+		height: 50px;
+	}
+</style>
+<body>
+
+	<div th:if="${message}">
+		<h2 th:text="${message}"/>
+	</div>
+
+	<div>
+		<form id="file">
+			<table>
+				<tr><td>File to upload:</td>
+					<td><input type="file" name="file" onchange="uploadImg(this)" accept="*.jpg"/>
+						<img src="" alt="" class="myImg" />
+					</td>
+					<td>
+						<input type="file" name="file" onchange="uploadImg(this)"/>
+						<img src="" alt="" class="myImg" />
+					</td>
+					<td>
+						<input type="file" name="file" onchange="uploadImg(this)"/>
+						<img src="" alt="" class="myImg" />
+					</td>
+					<td><input type="file" name="file" onchange="uploadImg(this)"/>
+						<img src="" alt="" class="myImg" />
+					</td>
+				</tr>
+				<tr><td></td><td><input type="button" value="Upload" onclick="test();"/></td></tr>
+			</table>
+		</form>
+	</div>
+
+	<div>
+		<ul>
+			<li th:each="file : ${files}">
+				<a th:href="${file}" th:text="${file}" />
+				<img class="myImg" th:src="${file}" alt="哈哈哈"/>
+				<a th:href="@{'/delete?file='+${file}}" onclick="return del()">删除</a>
+			</li>
+		</ul>
+	</div>
+
+</body>
+<script src="../js/jquery-3.2.1.js" />
+<script>
+	//判断浏览器是否支持FileReader接口
+	if (typeof FileReader == 'undefined') {
+		document.getElementById("xmTanDiv").InnerHTML = "<h1>当前浏览器不支持FileReader接口</h1>";
+	}
+	function test() {
+		var form = new FormData(document.getElementById("file"));
+		$.ajax({
+			url: '/upload',
+			type: 'post',
+			data: form,
+			processData: false,
+			contentType: false,
+			success : function (data) {
+				console.log(data.t);
+				location.reload();
+			},
+			error: function (e) {
+				alert('Wrong!');
+				console.log(e);
+			}
+		})
+	}
+
+	function uploadImg(obj) {
+		var file = obj.files[0];
+		console.log(obj)
+		console.log(file+file.size)
+		var reader = new FileReader();
+		reader.onloadstart = function () {
+			console.log("开始读取....")
+		}
+		reader.onprogress = function () {
+			console.log("正在读取中....")
+		}
+		reader.onabort = function () {
+			console.log("中断读取....")
+		}
+		reader.onerror = function () {
+			console.log("读取异常....")
+		}
+		reader.onload = function (e) {
+			console.log("读取成功....")
+			var img = $(obj).parent().children('img')[0];
+			img.src = e.target.result;
+		}
+
+		reader.readAsDataURL(file);
+	}
+	
+	function del() {
+		if(confirm("确认要删除？")) {
+			return ture;
+		}
+		return false;
+	}
+</script>
+</html>
